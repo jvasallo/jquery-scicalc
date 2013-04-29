@@ -1,0 +1,313 @@
+<html>
+	<head>
+        <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <script src="js/jquery.js"></script>
+        <style>
+      	    body {
+                padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+            }
+            #calculator-main {
+                margin: 0 auto;
+                -moz-border-radius: 7px;
+				border-radius: 7px;
+                width: 400px;
+                height: 575px;
+                background-color: #111111;
+            }
+            #calculator-header h2 {
+                margin: .75em;
+                font-size: 1.2em;
+                border-bottom: 1px solid #fbb117;
+                color: white;
+            }
+            #model {
+                float: right;
+            }
+            #calculator-display input {
+                font-family: Helvetica, sans-serif;
+                font-size: 2em;
+                font-weight: bold;
+                margin: 0 .45em;
+                width: 375px;
+                padding: 125px 5px 15px 0;
+                text-align: right;
+                background-color: grey;
+                color: black;
+            }
+            #calculator-body {
+                font-family: Helvetica, sans-serif;
+                margin: 0 .75em;
+                width: 390px;
+                font-size: 1.2em;
+                padding-top: .75em;
+                color: black;
+            }
+            #calculator-body input {
+                float: left;
+                font-family: Helvetica, sans-serif;
+                font-size: 1em;
+                font-weight: bold;
+                margin: .25em .15em;
+                width: 65px; 
+                height: 50px;
+            }
+            #calculator-toolbar input {
+                float: left;
+                color: white;
+                background-color: #fbb117;
+                font-family: Helvetica, sans-serif;
+                font-size: 1em;
+                font-weight: bold;
+                margin: .25em .25em;
+                width: 85px; 
+                height: 40px;
+            }
+            #calculator-numbers {
+                float: left;
+                width: 230px;
+                padding-top: .45em;
+            }
+            #calculator-operations {
+                float: left;
+                width: 150px;
+                padding-top: .45em;
+            }
+            #calculator-operations input {
+                color: white;
+                margin: .25em .45em .25em 0;
+                background-color: #3B4990;
+            }
+        </style>
+    </head>
+    
+	<body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="http://joelvasallo.com">Joel Vasallo (IT238)</a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                            <li><a href="/">Home</a></li>
+                            <li><a href="/mortgage.html">Mortgage Calculator</a></li>
+                            <li class="active"><a href="/scicalc.html">Scientific Calculator</a></li>
+                        </ul>
+                    </div><!--/.nav-collapse -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="container">
+            <div class="hero-unit">
+                <h1>Scientific Calculator</h1>
+                <p>Welcome to my jQuery calculator!</p>
+            </div>
+            
+            <div id="calculator-main">
+            	<div id="calculator-header">
+                    <h2>DePaul Instruments <span id="model">IT-238 <em>Plus</em></span></h2>
+                </div>
+                
+                <div id="calculator-display">
+                	<input type="text" id="total" value="0" />
+                </div>
+                
+                <div id="calculator-body">
+                	<div id="calculator-toolbar">
+                    	<input type="button" value="SIN" id="sin" />
+                    	<input type="button" value="COS" id="cos" />
+                    	<input type="button" value="TAN" id="tan" />
+                    	<input type="button" value="^" id="pow" />
+                    	<input type="button" value="x^2" id="square" />
+                    	<input type="button" value="LOG" id="log" />
+                    	<input type="button" value="&Pi;" id="pi" />
+                    	<input type="button" value="&larr;" id="back" />
+                    </div>
+                    
+        			<div id="calculator-numbers">
+        				<input type="button" value="7" id="7" />
+        				<input type="button" value="8" id="8" />
+        				<input type="button" value="9" id="9" />
+        				<input type="button" value="4" id="4" />
+        				<input type="button" value="5" id="5" />
+        				<input type="button" value="6" id="6" />
+        				<input type="button" value="1" id="1" />
+        				<input type="button" value="2" id="2" />
+        				<input type="button" value="3" id="3" />
+        				<input type="button" value="0" id="0" />
+        				<input type="button" value="." id="dot" />
+        				<input type="button" value="(&mdash;)" id="negate" />
+                    </div>
+                    
+                    <div id="calculator-operations">
+                        <input type="button" value="&radic;" id="sqroot" />
+                        <input type="button" value="C" id="clear" style="color: orange;" />
+        				<input type="button" value="-" id="subtract" />
+                        <input type="button" value="&divide" id="divide"/>
+                        <input type="button" value="+" id="plus" style="height: 107px;"/>
+        				<input type="button" value="x" id="product" />
+                    	<input type="button" value="=" id="equals"/>
+                    </div>
+                </div>
+            </div>
+            
+            <footer>
+            	<hr>
+        		<div class="container">
+                    <p>Written by <a href="http://joelvasallo.com/">Joel Vasallo</a></p>
+            	</div>
+        	</footer>
+        </div>
+        
+        <script>
+            // declare global variables
+            var oldNumber = null;
+            var currentNumber = null;
+            var operator = null;
+            var decimal = false;
+            
+            // used to clear the calculator of all local and set variables.
+            var clear = function () {
+            	oldNumber = null;
+            	currentNumber = null;
+            	operator = null;
+            	decimal = false;
+            	jQuery('#total').val("0");
+            }
+            
+            // simple function to negate a number, parse a float, then negate, finally return to #total
+            var negate = function () {
+                var currentNumber = parseFloat(jQuery('#total').val()) || 0;
+                result = -currentNumber;
+                jQuery('#total').val(result); 
+            }
+            
+            // take number pressed, and adds it to the #total input
+            var numberPress = function () {
+            	var numberPressed = jQuery(this).val();
+                var currentNumber = parseFloat(jQuery('#total').val()) || 0;
+                
+                // if the key pressed is a decimal
+                if (numberPressed == '.') {
+                    // if decimal is false (used to determine if number is already a decimal
+                    // to prevent weird things like 1.2.2.2 -or- ..1111
+                    if (decimal == false) {
+                        if (currentNumber == 0) {
+            				jQuery('#total').val(jQuery('#total').val() + numberPressed);
+                    	}
+                    	else {
+                        	jQuery('#total').val(jQuery('#total').val() + numberPressed);
+                        }
+                        decimal = true;
+                    }
+                }
+                // key pressed is not a decimal
+                else {
+               		// if the value is already a decimal then keep adding numbers to the end of it.
+                	if (jQuery('#total').val() == '0.') 
+                		jQuery('#total').val(jQuery('#total').val() + numberPressed);
+                    // else it is not a decimal, and if the value is 0 remove it. This is to prevent
+                    // things like 02222 -or- 01234, otherwise just accept a keypress
+                    else {
+                        if (currentNumber == 0) {
+                        	jQuery('#total').val("");
+                        }
+           				jQuery('#total').val(jQuery('#total').val() + numberPressed);
+                    }
+                }
+            }
+            
+           	// used to store number prior to operator being selected. Stores the operator.
+            var storeOldNumber = function () {
+            	oldNumber = parseFloat(jQuery('#total').val()) || 0;
+            	operator = jQuery(this).val();
+            	decimal = false;
+				currentNumber = null;
+            	jQuery('#total').val(0);
+            }
+            
+            // used for simple calculations, + - * / and also raising numbers to power
+            var calculateTotal = function () {
+                // means we haven't set the current number, thus get the 2nd part of an operation.
+                if (currentNumber == null) {
+                	currentNumber = parseFloat(jQuery('#total').val()) || 0;
+                }
+                
+                if (operator == '+') {
+            		result = oldNumber+currentNumber;
+                	jQuery('#total').val(result);
+                }
+                else if (operator == '-') {
+                    result = parseFloat(oldNumber-currentNumber);
+                	jQuery('#total').val(result);
+                }
+                else if (operator == 'x') {
+                    result = oldNumber*currentNumber;
+                	jQuery('#total').val(result);
+                }
+                else if (operator == '^') {
+                	result = Math.pow(oldNumber, currentNumber);
+                	jQuery('#total').val(result);
+                }
+                else {
+                    result = parseFloat(oldNumber/currentNumber);
+                	jQuery('#total').val(result);
+                }
+                oldNumber = result;  // critical! allows for repeated deductions without hitting operator
+                					 // no fears of causing an issue as storeOldNumber function overrides 
+                			         // oldNumber var
+            }
+            
+            // take the square root of what ever number is on the screen
+            var sqrRoot = function () {
+            	var currentNumber = parseFloat(jQuery('#total').val()) || 0;
+                result = Math.sqrt(currentNumber);
+                jQuery('#total').val(result); 
+            }
+            
+            // this function basically handles all the "yellow" buttons on the calc.
+            var scientificMode = function () {
+            	var funcPressed = jQuery(this).attr('id');
+
+                if (funcPressed == 'sin') {
+                	result = Math.sin(parseFloat(jQuery('#total').val()));
+                	jQuery('#total').val(result);
+                }
+                else if (funcPressed == 'cos') {
+                    result = Math.cos(parseFloat(jQuery('#total').val()));
+                	jQuery('#total').val(result);
+                }
+                else if (funcPressed == 'tan') {
+                    result = Math.tan(parseFloat(jQuery('#total').val()));
+                	jQuery('#total').val(result);
+                }
+                else if (funcPressed == 'pow') {
+                    result = Math.pow(parseFloat(jQuery('#total').val()),2);
+                	jQuery('#total').val(result);
+                }
+                else if (funcPressed == 'square') {
+                	result = Math.pow(parseFloat(jQuery('#total').val()),2);
+                	jQuery('#total').val(result);
+                }
+                else if (funcPressed == 'log') {
+                    result = Math.log(parseFloat(jQuery('#total').val()));
+                	jQuery('#total').val(result);
+                }
+                else if (funcPressed == 'pi') {
+                	jQuery('#total').val(3.14159265359);
+                }
+                else if (funcPressed == 'back') {
+                	result = jQuery('#total').val().slice(0,-1);
+                	jQuery('#total').val(result);
+                }
+            }
+            
+        	jQuery('#1,#2,#3,#4,#5,#6,#7,#8,#9,#0,#dot').click(numberPress);
+        	jQuery('#plus,#subtract,#divide,#product,#pow').click(storeOldNumber);
+        	jQuery('#sin,#cos,#tan,#square,#log,#pi,#back').click(scientificMode);
+        	jQuery('#equals').click(calculateTotal);
+        	jQuery('#sqroot').click(sqrRoot);
+        	jQuery('#negate').click(negate);
+        	jQuery('#clear').click(clear);
+        </script>
+    </body>
+</html>
